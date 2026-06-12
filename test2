@@ -1,0 +1,12 @@
+Extract all linked URR record IDs.
+Extract all linked MLR record IDs.
+Store URR record IDs in a collection.
+Store MLR record IDs in a collection.
+Iterate through each URR record ID and retrieve the corresponding record details.
+Iterate through each MLR record ID and retrieve the corresponding record details.
+Extract the End Date field from each URR record.
+Extract the Expiration Date field from each MLR record.
+Retrieve the Asset Expiration Date from the primary asset record.
+Combine all retrieved dates into a single expiration date list.
+Remove any null, blank, or invalid dates.
+Pass the consolidated date list to the expiration date calculation process.
