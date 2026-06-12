@@ -1,3 +1,5 @@
+Step 3: Retrieve Linked URR and MLR Records
+Fetch the asset/record details.
 Extract all linked URR record IDs.
 Extract all linked MLR record IDs.
 Store URR record IDs in a collection.
@@ -10,3 +12,11 @@ Retrieve the Asset Expiration Date from the primary asset record.
 Combine all retrieved dates into a single expiration date list.
 Remove any null, blank, or invalid dates.
 Pass the consolidated date list to the expiration date calculation process.
+Step 4: Calculate Earliest Expiration Date
+Convert all valid date values into a comparable date format.
+Compare all dates in the consolidated list.
+Identify the earliest (minimum) expiration date.
+Store the result as the proposed calculated_expiration_date.
+Compare the proposed value with the existing calculated_expiration_date.
+If the values differ, update the asset record.
+If the values are the same, end processing.
