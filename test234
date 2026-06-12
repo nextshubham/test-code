@@ -1,0 +1,164 @@
+From the screenshots, you currently have:
+
+### Step 1: Authentication
+
+* Get Aprimo Access Token
+* Store access token for subsequent API calls
+
+### Step 2: Fetch Record
+
+* Fetch record details using the `recordId`
+* Retrieve all fields required for expiration calculation
+
+The next section in your document can be written as follows:
+
+---
+
+# Step 3: Calculate Earliest Expiration Date
+
+### Purpose
+
+Determine the earliest valid expiration date across all expiration-related fields and store it as the asset's `calculated_expiration_date`.
+
+### Processing Logic
+
+After fetching the record details, the utility extracts the following fields:
+
+| Source                     | Field                 |
+| -------------------------- | --------------------- |
+| Asset                      | Asset Expiration Date |
+| Usage Rights Records (URR) | End Date              |
+| MLR Records                | Expiration Date       |
+
+The utility then creates a collection of all valid dates.
+
+### Example
+
+Retrieved values:
+
+```json
+{
+  "assetExpirationDate": "2028-12-15",
+  "urrEndDates": [
+    "2028-10-10",
+    "2028-08-20"
+  ],
+  "mlrExpirationDates": [
+    "2028-09-05"
+  ]
+}
+```
+
+Candidate dates:
+
+```text
+2028-12-15
+2028-10-10
+2028-08-20
+2028-09-05
+```
+
+The utility selects the minimum (earliest) date:
+
+```text
+2028-08-20
+```
+
+This becomes:
+
+```text
+calculated_expiration_date = 2028-08-20
+```
+
+### Node.js Implementation
+
+```javascript
+const allDates = [
+  assetExpirationDate,
+  ...urrEndDates,
+  ...mlrExpirationDates
+]
+.filter(Boolean)
+.map(date => new Date(date));
+
+const earliestDate = new Date(
+  Math.min(...allDates.map(date => date.getTime()))
+);
+```
+
+### Business Rule
+
+> The earliest available date among Asset Expiration Date, linked Usage Rights Record End Dates, and linked MLR Expiration Dates shall be considered the effective expiration date of the asset.
+
+---
+
+# Step 4: Compare Existing Calculated Date
+
+The utility retrieves the current value of `calculated_expiration_date` from the record.
+
+### Decision
+
+```text
+Is newly calculated date different from existing calculated_expiration_date?
+```
+
+#### No
+
+```text
+No update required
+End processing
+```
+
+#### Yes
+
+```text
+Proceed with record update
+```
+
+---
+
+# Step 5: Update Record
+
+### API Endpoint
+
+```http
+PUT https://{{domain}}.dam.aprimo.com/api/core/record/{{recordId}}
+```
+
+### Purpose
+
+Update the field:
+
+```text
+calculated_expiration_date
+```
+
+with the newly calculated earliest expiration date.
+
+### Example Payload
+
+```json
+{
+  "fields": {
+    "addOrUpdate": [
+      {
+        "id": "{{calculatedExpirationDateFieldId}}",
+        "localizedValues": [
+          {
+            "value": "2028-08-20"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### Success Outcome
+
+```text
+Record updated successfully
+Processing completed
+```
+
+This structure flows naturally after the two screenshots you've already documented and matches the flow diagram you shared earlier.
